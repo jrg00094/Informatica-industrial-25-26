@@ -10,6 +10,7 @@ int main() {
     int opcion;
 
     do {
+        printf("\n-------------------------------------------\n\n");
         printf("\n--- GoVending ---\n");
         printf("1. Alta de producto\n");
         printf("2. Listar productos\n");

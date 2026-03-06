@@ -2,6 +2,10 @@
 #include "productos.h"
 #include "funciones.h" // Funciones de la parte A
 
+/**
+ * Función para mostrar en una lista todos los prductos guardados:
+ * Comprueba si el array inventario está vacío, y si no lo está, devuelve ID, Nombre y Preico.
+ *//
 void listar_productos(const Producto *inventario, size_t n) {
     if (n == 0) {
         printf("\nInventario vacio.\n");
@@ -14,6 +18,10 @@ void listar_productos(const Producto *inventario, size_t n) {
     }
 }
 
+/**
+ * Función para Buscar Producto por ID:
+ * Busca el valor de ID indicado en el array inventario.
+ */
 int buscar_indice_por_id(const Producto *inventario, size_t n, int id_buscar) {
     for (size_t i = 0; i < n; i++) {
         if (inventario[i].id == id_buscar) return (int)i;
@@ -21,6 +29,13 @@ int buscar_indice_por_id(const Producto *inventario, size_t n, int id_buscar) {
     return -1; // No encontrado
 }
 
+/**
+ * Función para declarar productos nuevos:
+ * Comprueba que el inventario no está lleno y entonces:
+ *      lee un entero como ID.
+ *      lee una cadena de caracteres como Nombre.
+ *      lee un decimal (flot) como Precio.
+ */
 int alta_producto(Producto *inventario, size_t *n, size_t capacidad_max) {
     if (*n >= capacidad_max) {
         printf("Error: Inventario lleno.\n");
@@ -44,6 +59,13 @@ int alta_producto(Producto *inventario, size_t *n, size_t capacidad_max) {
     return 1;
 }
 
+/**
+ * Función para modificar los datos de un ID:
+ * Comprueba que hay prodructos en el array inventario y entonces:
+*       lee un entero como ID.
+ *      lee una cadena de caracteres como Nombre.
+ *      lee un decimal (flot) como Precio.
+ */
 void modificar_producto(Producto *inventario, size_t n) {
     if (n == 0) {
         printf("No hay productos para modificar.\n");

@@ -3,6 +3,15 @@
 
 #include <stddef.h>
 
+/**
+ * Programa de una maquina expendedora que guarda el ID, Nombre y Precio de los productos leidos del teclado:
+ * id: ID del producto leido desde el teclado.
+ * nombre: Nombre del producto leido desde el teclado.
+ * precio: Precio del producto leido desde el teclado
+ * inventario: Array que guarda los productos.
+ * capacidad_max: Máxima cantidad de productos que caben dentro de "inventario".
+ * n: Tamaño del array "inventario".
+ */
 typedef struct {
     int id;
     char nombre[50];
