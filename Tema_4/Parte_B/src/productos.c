@@ -5,7 +5,7 @@
 
 /**
  * Función para mostrar en una lista todos los prductos guardados:
- * Comprueba si el array inventario está vacío, y si no lo está, devuelve ID, Nombre y Preico.
+ * Comprueba si el array inventario está vacío, y si no lo está, devuelve ID, Nombre, Preico y Stock.
  */
 void listar_productos(const Producto *inventario, size_t n) {
     if (n == 0) {
@@ -33,9 +33,10 @@ int buscar_indice_por_id(const Producto *inventario, size_t n, int id_buscar) {
 /**
  * Función para declarar productos nuevos:
  * Comprueba que el inventario no está lleno y entonces:
- *      lee un entero como ID.
+ *      lee un entero como ID y comprueba que no esté ya declarado.
  *      lee una cadena de caracteres como Nombre.
  *      lee un decimal (flot) como Precio.
+ *      lee un entero como Stock.
  */
 int alta_producto(Producto *inventario, size_t *n, size_t capacidad_max) {
     if (*n >= capacidad_max) {
@@ -67,6 +68,7 @@ int alta_producto(Producto *inventario, size_t *n, size_t capacidad_max) {
 *       lee un entero como ID.
  *      lee una cadena de caracteres como Nombre.
  *      lee un decimal (flot) como Precio.
+ *      lee un entero como Stock
  */
 void modificar_producto(Producto *inventario, size_t n) {
     if (n == 0) {
@@ -94,6 +96,9 @@ void modificar_producto(Producto *inventario, size_t n) {
 }
 
 
+/**
+ * Función para guardar los datos en un .csv.
+ */
 int guardar_texto(const char *ruta, const Producto *arr, size_t n) {
     FILE *f = fopen(ruta, "w"); // "w" para sobrescribir el archivo
     if (!f) return 0;
@@ -108,6 +113,9 @@ int guardar_texto(const char *ruta, const Producto *arr, size_t n) {
     return 1;
 }
 
+/**
+ * Función para cargar los datos de un .csv.
+ */
 int cargar_texto(const char *ruta, Producto *arr, int cap, size_t *out_n) {
     FILE *f = fopen(ruta, "r"); // "r" para lectura
     if (!f) return 0;

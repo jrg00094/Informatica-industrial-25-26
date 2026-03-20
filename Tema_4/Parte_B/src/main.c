@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include "funciones.h"
+#include "funciones.h"  //Funciones de leer datos por teclado de la parte A
 #include "productos.h"
 
-#define MAX_PRODUCTOS 100
+#define MAX_PRODUCTOS 50   //Defino la cantidad de productos que le caben a la máquina
 #define RUTA_POR_DEFECTO "inventario.csv"
 
 int main() {
@@ -23,10 +23,10 @@ int main() {
         printf("6. Salir\n");
         printf("-------------------------------------------\n");
 
-        if (!leer_entero("Seleccione opcion: ", &opcion)) continue;
+        if (!leer_entero("Seleccione opcion: ", &opcion)) continue; //Leo la opción elegida
 
         switch (opcion) {
-            case 1: // Cargar productos
+            case 1: // Cargar productos desde fichero en cmake-build-debug
                 if (cargar_texto(RUTA_POR_DEFECTO, inventario, MAX_PRODUCTOS, &num_productos)) {
                     printf("[OK] Productos cargados desde %s. Total: %zu\n", RUTA_POR_DEFECTO, num_productos);
                 } else {
@@ -35,19 +35,18 @@ int main() {
                 break;
 
             case 2: // Listar productos
-                // Convertimos num_productos a size_t para la función de listado si es necesario
-                listar_productos(inventario, (size_t)num_productos);
+                listar_productos(inventario, num_productos);
                 break;
 
             case 3: // Añadir producto
                 // Pasamos la dirección de num_productos para que alta_producto lo incremente
-                if (alta_producto(inventario, (size_t *)&num_productos, MAX_PRODUCTOS)) {
+                if (alta_producto(inventario, &num_productos, MAX_PRODUCTOS)) {
                     printf("[OK] Producto agregado con exito.\n");
                 }
                 break;
 
             case 4: // Modificar producto
-                modificar_producto(inventario, (size_t)num_productos);
+                modificar_producto(inventario, num_productos);
                 break;
 
             case 5: // Guardar productos
@@ -58,8 +57,8 @@ int main() {
                 }
                 break;
 
-            case 6: // Salir [cite: 95]
-                printf("Cerrando sistema GoVending...\n");
+            case 6: // Salir
+                printf("Cerrando GoVending...\n");
                 salir = true;
                 break;
 
