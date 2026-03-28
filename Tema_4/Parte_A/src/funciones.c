@@ -7,7 +7,7 @@ int leer_entero(const char *prompt, int *out) {
     char buf[128];
     for (;;) {
         printf("%s", prompt);
-        if (!fgets(buf, sizeof(buf), stdin)) return 0; // EOF
+        if (!fgets(buf, sizeof(buf), stdin)) return 0;
         errno = 0; // variable global de error en strol
         char *end = NULL;
         long v = strtol(buf, &end, 10);
