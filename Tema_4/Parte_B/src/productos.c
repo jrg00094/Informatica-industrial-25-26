@@ -130,7 +130,7 @@ int cargar_texto(const char *ruta, Producto *arr, int cap, int *out_n) {
     while (fgets(linea, sizeof(linea), f)) {
         if (n >= cap) {
             printf("[AVISO]: El archivo .csv contiene mas productos de la capacidad maxima (%d).\n", cap);
-            break; // <--- SE DETIENE AQUÍ EN EL QUINTO ELEMENTO
+            break;
         }
 
         linea[strcspn(linea, "\n")] = '\0';
@@ -147,7 +147,7 @@ int cargar_texto(const char *ruta, Producto *arr, int cap, int *out_n) {
 
 /**
  * Función para cargar la configuración de la máquina:
- * Comprueba si el array inventario está vacío, y si no lo está, devuelve MAX_PRODUCTOS, RUTA_INVENTARIO, PUERTO y BAUDRATE.
+ * Comprueba si el array está vacío, y si no lo está, devuelve MAX_PRODUCTOS, RUTA_INVENTARIO, PUERTO, BAUDRATE y FRECUENCIA_LED.
  */
 int cargar_configuracion(const char *ruta_config, ConfigApp *config) {
     FILE *f = fopen(ruta_config, "r");
@@ -159,6 +159,7 @@ int cargar_configuracion(const char *ruta_config, ConfigApp *config) {
         sscanf(linea, "RUTA_INVENTARIO=%99s", config->ruta_inventario);
         sscanf(linea, "PUERTO=%49s", config->puerto_serie);
         sscanf(linea, "BAUDRATE=%d", &config->baudrate);
+        sscanf(linea, "FRECUENCIA_LED=%d", &config->frecuencia_led);
     }
     fclose(f);
     return 1;
@@ -176,6 +177,7 @@ int guardar_configuracion(const char *ruta_config, const ConfigApp *config) {
     fprintf(f, "RUTA_INVENTARIO=%s\n", config->ruta_inventario);
     fprintf(f, "PUERTO=%s\n", config->puerto_serie);
     fprintf(f, "BAUDRATE=%d\n", config->baudrate);
+    fprintf(f, "FRECUENCIA_LED=%d\n", config->frecuencia_led);
 
     fclose(f);
     return 1;
@@ -236,8 +238,17 @@ void comunicarse_stm32(const ConfigApp *config, Producto *inventario, int n) {
     dcbSerialParams.Parity = NOPARITY;
     SetCommState(hSerial, &dcbSerialParams);
 
+    // Preparar la cadena con el formato '#frecuencia\n'
+    char msg_led[32];
+    sprintf(msg_led, "#%d\n", config->frecuencia_led);
+
     // Limpiar los buffers del puerto antes de enviar/recibir
     PurgeComm(hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
+
+    // Enviar los datos por el cable
+    DWORD bytesWrittenLed;
+    WriteFile(hSerial, msg_led, strlen(msg_led), &bytesWrittenLed, NULL);
+    Sleep(100);
 
     DWORD bytesWritten;
     WriteFile(hSerial, cadena_enviar, strlen(cadena_enviar), &bytesWritten, NULL);

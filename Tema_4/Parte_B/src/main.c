@@ -21,6 +21,7 @@ int main() {
         strcpy(config.ruta_inventario, "inventario.csv");
         strcpy(config.puerto_serie, "COM7");
         config.baudrate = 9600;
+        config.frecuencia_led = 60000;
         guardar_configuracion(ARCHIVO_CONFIG, &config);
     }
 
@@ -90,11 +91,13 @@ int main() {
 
             case 6: // Modificar puerto serie
                 printf("\n--- MODIFICAR PUERTO SERIE ---\n");
-                printf("Puerto actual: %s | Baudrate actual: %d\n", config.puerto_serie, config.baudrate);
+                printf("Puerto actual: %s | Baudrate actual: %d\n | Frecuencia del LED actual: %d\n", config.puerto_serie, config.baudrate,config.frecuencia_led);
                 leer_cadena("Introduce el nuevo puerto (Ej: COM3, COM7): ", config.puerto_serie, 50);
-                leer_entero("Introduce la velocidad (Ej: 9600, 115200): ", &config.baudrate);
+                leer_entero("Introduce la velocidad de transmision de datos (Ej: 9600, 115200): ", &config.baudrate);
+                leer_entero("Introduce la frecuencia de parapdeo del LED (Ej: 40000, 100000): ", &config.frecuencia_led);
                 guardar_configuracion(ARCHIVO_CONFIG, &config);
                 printf("Parametros actualizados correctamente.\n");
+
                 break;
 
             case 7:
