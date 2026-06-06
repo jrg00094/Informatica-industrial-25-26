@@ -181,7 +181,7 @@ int guardar_configuracion(const char *ruta_config, const ConfigApp *config) {
     return 1;
 }
 
-void comunicarse_stm32(const ConfigApp *config, const Producto *inventario, int n) {
+void comunicarse_stm32(const ConfigApp *config, Producto *inventario, int n) {
     int id_prod;
     float importe_int;
 
@@ -189,12 +189,12 @@ void comunicarse_stm32(const ConfigApp *config, const Producto *inventario, int 
     int idx = buscar_indice_por_id(inventario, n, id_prod);
 
     if (idx == -1) {
-        printf("Error: Producto no encontrado.\n");
+        printf("[Error]: Producto no encontrado.\n");
         return;
     }
 
     if (inventario[idx].stock <= 0) {
-        printf("Error: No queda stock de este producto.\n");
+        printf("[Error]: No queda stock de este producto.\n");
         return;
     }
 
@@ -213,11 +213,11 @@ void comunicarse_stm32(const ConfigApp *config, const Producto *inventario, int 
 #if defined(_WIN32) || defined(_WIN64) // CONFIGURACIÓN PARA WINDOWS
     HANDLE hSerial = CreateFile(config->puerto_serie, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
     if (hSerial == INVALID_HANDLE_VALUE) {
-        printf("Error: No se pudo abrir el puerto serie.\n");
+        printf("[Error]: No se pudo abrir el puerto serie.\n");
         return;
     }
 
-    // --- ¡NUEVO: FIJAR TIMEOUTS PARA EVITAR CONGELAMIENTOS! ---
+    // FIJAR TIMEOUTS PARA EVITAR CONGELAMIENTOS
     COMMTIMEOUTS timeouts = { 0 };
     timeouts.ReadIntervalTimeout = 50;          // Máximo tiempo entre caracteres (ms)
     timeouts.ReadTotalTimeoutConstant = 1000;    // Espera máxima total para la lectura (1 segundo)
@@ -253,6 +253,54 @@ void comunicarse_stm32(const ConfigApp *config, const Producto *inventario, int 
 
     if (bytesRead > 0) {
         printf("\n--- RESPUESTA DE STM32 ---\n%s\n", rx_buf);
+
+        // Comprobamos si la respuesta de la placa contiene la palabra "OK"
+        if (strstr(rx_buf, "OK") != NULL) {
+
+            inventario[idx].stock--; // Restamos una unidad en la memoria
+
+            printf("[Sistema]: Compra validada. Se ha descontado 1 unidad de %s.\n", inventario[idx].nombre);
+            printf("[Sistema]: Stock restante: %d\n", inventario[idx].stock);
+
+            // ALGORITMO DE DESGLOSE DE MONEDAS
+            int cambio_total = importe_centimos - precio_centimos;
+
+            if (cambio_total < 0) {
+                printf("[Sistema]: Error inesperado, el saldo es insuficiente.\n");
+            } else if (cambio_total == 0) {
+                printf("[Sistema]: Importe exacto introducido. No hay cambio que devolver.\n");
+            } else {
+                printf("[Sistema]: Cambio total a devolver: %.2f eur (%d centimos)\n", (float)cambio_total / 100.0, cambio_total);
+                printf("          Desglose de monedas:\n");
+
+                // Valores de las monedas que maneja la máquina (en céntimos)
+                // 200 = 2€, 100 = 1€, 50 = 50c, 20 = 20c, 10 = 10c, 5 = 5c
+                int valores_monedas[] = {200, 100, 50, 20, 10, 5};
+                const char* nombres_monedas[] = {"2 euros", "1 euro", "50 centimos", "20 centimos", "10 centimos", "5 centimos"};
+                int total_monedas = sizeof(valores_monedas) / sizeof(valores_monedas[0]);
+
+                for (int i = 0; i < total_monedas; i++) {
+                    if (cambio_total >= valores_monedas[i]) {
+                        int cantidad_monedas = cambio_total / valores_monedas[i]; // Cuántas de este tipo caben
+                        cambio_total = cambio_total % valores_monedas[i];        // El residuo que queda por desglosar
+
+                        printf("          - %d moneda(s) de %s\n", cantidad_monedas, nombres_monedas[i]);
+                    }
+                }
+
+                //  Si quedan céntimos sueltos menores a 5c (1c o 2c)
+                if (cambio_total > 0) {
+                    printf("          - Sobrante no almacenable: %d centimos\n", cambio_total);
+                }
+            }
+
+            // Guardado automático
+            guardar_texto(config->ruta_inventario, inventario, n);
+            printf("[Sistema]: El archivo %s ha sido actualizado.\n", config->ruta_inventario);
+        } else {
+            printf("[Sistema]: La STM32 ha devuelto un error. No se modifica el stock.\n");
+        }
+
     } else {
         printf("\n[AVISO]: No se ha recibido respuesta de la STM32 (Timeout).\n");
     }
@@ -262,7 +310,7 @@ void comunicarse_stm32(const ConfigApp *config, const Producto *inventario, int 
 #else // CONFIGURACIÓN PARA LINUX/MAC
     int fd = open(config->puerto_serie, O_RDWR | O_NOCTTY | O_NDELAY);
     if (fd == -1) {
-        printf("Error: No se pudo abrir el puerto serie.\n");
+        printf("[Error]: No se pudo abrir el puerto serie.\n");
         return;
     }
     struct termios options;

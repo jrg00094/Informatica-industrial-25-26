@@ -11,6 +11,10 @@ int main() {
     ConfigApp config;
     memset(&config, 0, sizeof(ConfigApp));
 
+    char stm32_config[32];
+    sprintf(stm32_config, "#%d\n", config.frecuencia_led);
+
+
     // Si no existe la configuración, inicializar valores por defecto
     if (!cargar_configuracion(ARCHIVO_CONFIG, &config)) {
         config.max_productos = 50;
@@ -87,7 +91,7 @@ int main() {
             case 6: // Modificar puerto serie
                 printf("\n--- MODIFICAR PUERTO SERIE ---\n");
                 printf("Puerto actual: %s | Baudrate actual: %d\n", config.puerto_serie, config.baudrate);
-                leer_cadena("Introduce el nuevo puerto (Ej: COM3 o /dev/ttyACM0): ", config.puerto_serie, 50);
+                leer_cadena("Introduce el nuevo puerto (Ej: COM3, COM7): ", config.puerto_serie, 50);
                 leer_entero("Introduce la velocidad (Ej: 9600, 115200): ", &config.baudrate);
                 guardar_configuracion(ARCHIVO_CONFIG, &config);
                 printf("Parametros actualizados correctamente.\n");

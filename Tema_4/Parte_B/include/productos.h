@@ -25,6 +25,7 @@ typedef struct {
     char ruta_inventario[100];
     char puerto_serie[50];
     int baudrate;
+    int frecuencia_led;
 } ConfigApp;
 
 // Funciones de gestión
@@ -40,5 +41,5 @@ int cargar_configuracion(const char *ruta_config, ConfigApp *config);
 int guardar_configuracion(const char *ruta_config, const ConfigApp *config);
 
 // Enlace UART
-void comunicarse_stm32(const ConfigApp *config, const Producto *inventario, int n);
+void comunicarse_stm32(const ConfigApp *config, Producto *inventario, int n);
 #endif
